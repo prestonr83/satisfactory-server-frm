@@ -1,52 +1,26 @@
-FROM debian:bookworm-slim
+FROM cm2network/steamcmd:root
 
 ARG DEBIAN_FRONTEND=noninteractive
 
 LABEL org.opencontainers.image.title="Custom Satisfactory Dedicated Server" \
-      org.opencontainers.image.description="Standalone SteamCMD-based Satisfactory dedicated server image for Unraid." \
+      org.opencontainers.image.description="Satisfactory dedicated server image for Unraid built on cm2network/steamcmd:root." \
       org.opencontainers.image.source="https://satisfactory.wiki.gg/wiki/Dedicated_servers"
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-        ca-certificates \
-        curl \
         gosu \
-        lib32stdc++6 \
-        lib32gcc-s1 \
-        locales \
         tini \
-    && sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen \
-    && dpkg-reconfigure --frontend=noninteractive locales \
     && rm -rf /var/lib/apt/lists/*
 
-RUN groupadd steam \
-    && useradd -m -g steam -s /bin/bash steam \
-    && mkdir -p /opt/steamcmd /satisfactory /home/steam/.config/Epic/FactoryGame/Saved/SaveGames /scripts \
-    && chown -R steam:steam /opt/steamcmd /satisfactory /home/steam /scripts
-
-RUN curl -fsSL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" \
-    | tar -xz -C /opt/steamcmd \
-    && find /opt/steamcmd -maxdepth 2 \( -name "steamcmd.sh" -o -name "steamcmd" \) -exec chmod +x {} \; \
-    && su steam -c "cd /opt/steamcmd && ./steamcmd.sh +quit" \
-    && ln -sf /opt/steamcmd/linux32/steamclient.so /opt/steamcmd/steamservice.so \
-    && mkdir -p /home/steam/.steam/sdk32 /home/steam/.steam/sdk64 \
-    && ln -sf /opt/steamcmd/linux32/steamclient.so /home/steam/.steam/sdk32/steamclient.so \
-    && ln -sf /opt/steamcmd/linux64/steamclient.so /home/steam/.steam/sdk64/steamclient.so \
-    && ln -sf /opt/steamcmd/linux32/steamcmd /opt/steamcmd/linux32/steam \
-    && ln -sf /opt/steamcmd/linux64/steamcmd /opt/steamcmd/linux64/steam \
-    && ln -sf /opt/steamcmd/steamcmd.sh /opt/steamcmd/steam.sh \
-    && ln -sf /opt/steamcmd/linux64/steamclient.so /usr/lib/x86_64-linux-gnu/steamclient.so \
-    && chown -R steam:steam /opt/steamcmd
+RUN mkdir -p /satisfactory /home/steam/.config/Epic/FactoryGame/Saved/SaveGames /scripts \
+    && chown -R steam:steam /satisfactory /home/steam /scripts
 
 COPY --chmod=755 docker-entrypoint.sh /scripts/docker-entrypoint.sh
 COPY --chmod=755 install-update.sh /scripts/install-update.sh
 COPY --chmod=755 start-server.sh /scripts/start-server.sh
 
-ENV LANG=en_US.UTF-8 \
-    LANGUAGE=en_US:en \
-    LC_ALL=en_US.UTF-8 \
-    HOME=/home/steam \
-    STEAMCMDDIR=/opt/steamcmd \
+ENV HOME=/home/steam \
+    STEAMCMDDIR=/home/steam/steamcmd \
     PUID=99 \
     PGID=100 \
     UPDATE_ON_START=true \

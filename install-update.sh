@@ -2,6 +2,8 @@
 set -euo pipefail
 
 STEAMCMD="/opt/steamcmd/steamcmd.sh"
+STEAMCMD_DIR="/opt/steamcmd"
+STEAM_RUNTIME_DIR="/home/steam/Steam"
 INSTALL_DIR="/satisfactory"
 APP_ID="1690800"
 
@@ -18,8 +20,17 @@ if [[ "${should_update}" != "true" && -x "${INSTALL_DIR}/FactoryServer.sh" ]]; t
 fi
 
 # SteamCMD commonly needs a first-run self-update before app commands work.
-# Prime it once, then run the actual install/update command.
-"${STEAMCMD}" +quit || true
+# Run from the SteamCMD directory and clear stale bootstrap packages if needed.
+bootstrap_steamcmd() {
+  rm -rf "${STEAM_RUNTIME_DIR}/package" "${STEAM_RUNTIME_DIR}/steamcmd"
+  mkdir -p "${STEAM_RUNTIME_DIR}"
+  (
+    cd "${STEAMCMD_DIR}"
+    "${STEAMCMD}" +quit
+  )
+}
+
+bootstrap_steamcmd || bootstrap_steamcmd
 
 cmd=("${STEAMCMD}" "+force_install_dir" "${INSTALL_DIR}" "+login")
 if [[ "${steam_user}" == "anonymous" ]]; then

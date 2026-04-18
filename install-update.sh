@@ -17,6 +17,10 @@ if [[ "${should_update}" != "true" && -x "${INSTALL_DIR}/FactoryServer.sh" ]]; t
   exit 0
 fi
 
+# SteamCMD commonly needs a first-run self-update before app commands work.
+# Prime it once, then run the actual install/update command.
+"${STEAMCMD}" +quit || true
+
 cmd=("${STEAMCMD}" "+force_install_dir" "${INSTALL_DIR}" "+login")
 if [[ "${steam_user}" == "anonymous" ]]; then
   cmd+=("anonymous")

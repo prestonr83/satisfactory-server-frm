@@ -21,8 +21,8 @@ RUN dpkg --add-architecture i386 \
         tini \
     && rm -rf /var/lib/apt/lists/*
 
-RUN groupadd -g 1000 steam \
-    && useradd -m -u 1000 -g 1000 -s /bin/bash steam \
+RUN groupadd steam \
+    && useradd -m -g steam -s /bin/bash steam \
     && mkdir -p /opt/steamcmd /satisfactory /home/steam/.config/Epic/FactoryGame/Saved/SaveGames /scripts \
     && chown -R steam:steam /opt/steamcmd /satisfactory /home/steam /scripts
 

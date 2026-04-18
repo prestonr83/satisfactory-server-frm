@@ -1,4 +1,4 @@
-FROM ubuntu:24.04
+FROM debian:bookworm-slim
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -6,19 +6,17 @@ LABEL org.opencontainers.image.title="Custom Satisfactory Dedicated Server" \
       org.opencontainers.image.description="Standalone SteamCMD-based Satisfactory dedicated server image for Unraid." \
       org.opencontainers.image.source="https://satisfactory.wiki.gg/wiki/Dedicated_servers"
 
-RUN dpkg --add-architecture i386 \
-    && apt-get update \
+RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         ca-certificates \
         curl \
         gosu \
+        lib32stdc++6 \
         lib32gcc-s1 \
-        libstdc++6:i386 \
-        libcurl4:i386 \
-        libc6:i386 \
-        libncurses6:i386 \
-        libbz2-1.0:i386 \
+        locales \
         tini \
+    && sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen \
+    && dpkg-reconfigure --frontend=noninteractive locales \
     && rm -rf /var/lib/apt/lists/*
 
 RUN groupadd steam \
@@ -44,7 +42,12 @@ COPY --chmod=755 docker-entrypoint.sh /scripts/docker-entrypoint.sh
 COPY --chmod=755 install-update.sh /scripts/install-update.sh
 COPY --chmod=755 start-server.sh /scripts/start-server.sh
 
-ENV PUID=99 \
+ENV LANG=en_US.UTF-8 \
+    LANGUAGE=en_US:en \
+    LC_ALL=en_US.UTF-8 \
+    HOME=/home/steam \
+    STEAMCMDDIR=/opt/steamcmd \
+    PUID=99 \
     PGID=100 \
     UPDATE_ON_START=true \
     VALIDATE_ON_START=false \

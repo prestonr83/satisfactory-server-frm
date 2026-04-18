@@ -16,7 +16,7 @@ RUN dpkg --add-architecture i386 \
         libstdc++6:i386 \
         libcurl4:i386 \
         libc6:i386 \
-        libncurses5:i386 \
+        libncurses6:i386 \
         libbz2-1.0:i386 \
         tini \
     && rm -rf /var/lib/apt/lists/*

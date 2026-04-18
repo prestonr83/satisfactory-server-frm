@@ -28,7 +28,7 @@ RUN groupadd steam \
 
 RUN curl -fsSL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" \
     | tar -xz -C /opt/steamcmd \
-    && chmod +x /opt/steamcmd/steamcmd.sh /opt/steamcmd/linux32/steamcmd /opt/steamcmd/linux64/steamcmd \
+    && find /opt/steamcmd -maxdepth 2 \( -name "steamcmd.sh" -o -name "steamcmd" \) -exec chmod +x {} \; \
     && chown -R steam:steam /opt/steamcmd
 
 COPY --chmod=755 docker-entrypoint.sh /scripts/docker-entrypoint.sh

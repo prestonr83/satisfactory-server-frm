@@ -29,6 +29,15 @@ RUN groupadd steam \
 RUN curl -fsSL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" \
     | tar -xz -C /opt/steamcmd \
     && find /opt/steamcmd -maxdepth 2 \( -name "steamcmd.sh" -o -name "steamcmd" \) -exec chmod +x {} \; \
+    && su steam -c "cd /opt/steamcmd && ./steamcmd.sh +quit" \
+    && ln -sf /opt/steamcmd/linux32/steamclient.so /opt/steamcmd/steamservice.so \
+    && mkdir -p /home/steam/.steam/sdk32 /home/steam/.steam/sdk64 \
+    && ln -sf /opt/steamcmd/linux32/steamclient.so /home/steam/.steam/sdk32/steamclient.so \
+    && ln -sf /opt/steamcmd/linux64/steamclient.so /home/steam/.steam/sdk64/steamclient.so \
+    && ln -sf /opt/steamcmd/linux32/steamcmd /opt/steamcmd/linux32/steam \
+    && ln -sf /opt/steamcmd/linux64/steamcmd /opt/steamcmd/linux64/steam \
+    && ln -sf /opt/steamcmd/steamcmd.sh /opt/steamcmd/steam.sh \
+    && ln -sf /opt/steamcmd/linux64/steamclient.so /usr/lib/x86_64-linux-gnu/steamclient.so \
     && chown -R steam:steam /opt/steamcmd
 
 COPY --chmod=755 docker-entrypoint.sh /scripts/docker-entrypoint.sh
